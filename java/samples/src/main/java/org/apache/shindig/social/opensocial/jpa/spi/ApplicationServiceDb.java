@@ -212,7 +212,7 @@ public class ApplicationServiceDb implements ApplicationService {
     }
 	
 	// when inserting the record with native query there is no exception when the page in moodle reloads 
-    /*Query query = entityManager
+    Query query = entityManager
         .createNativeQuery("INSERT INTO mdl_widgetspace_gadgets (url, widgetspaceid, name, height, thumbnail, screenshot, description, timemodified) "
             + " VALUES(?,?,?,?,?,?,?,?)");
     query.setParameter(1, applicationUrl.getApplicationUrl());
@@ -227,11 +227,11 @@ public class ApplicationServiceDb implements ApplicationService {
 	query.setParameter(8, Calendar.getInstance().getTimeInMillis()/1000);
     query.executeUpdate();
 
-    entityManager.getTransaction().commit();*/
+    entityManager.getTransaction().commit();
 
 	//the question is that if using the jpa instead of native query then there arise an exception
     
-    if (!entityManager.getTransaction().isActive()) {
+    /*if (!entityManager.getTransaction().isActive()) {
     entityManager.getTransaction().begin(); } 
 	ApplicationDb applicationDb = new ApplicationDb();
     applicationDb.setParentId(token.getOwnerId().replace("s_", ""));
@@ -247,7 +247,7 @@ public class ApplicationServiceDb implements ApplicationService {
     
     applicationDb.setTimeModified(Calendar.getInstance().getTimeInMillis() / 1000);
     entityManager.persist(applicationDb);
-    entityManager.getTransaction().commit();
+    entityManager.getTransaction().commit();*/
 
     } catch (RpcException e) {
     // TODO Auto-generated catch block
