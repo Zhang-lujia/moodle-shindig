@@ -92,4 +92,16 @@ public interface ApplicationService {
    */
   Future<Application> getApplication(ApplicationId applicationId, Set<String> fields, SecurityToken token)
       throws ProtocolException;
+	  
+	  
+  /**
+   * Create a gadget in current widgetspace that correspons to the passed in
+   * application url
+   * 
+   * @param url
+   *          The url of the source file for the application to be created
+   * @param token
+   *          The gadget token
+   */
+  Future<Void> createApplication(ApplicationUrl applicationUrl, SecurityToken token) throws ProtocolException;
 }

@@ -34,6 +34,7 @@ import org.apache.shindig.social.opensocial.model.Application;
 import org.apache.shindig.social.opensocial.spi.CollectionOptions;
 import org.apache.shindig.social.opensocial.spi.GroupId;
 import org.apache.shindig.social.opensocial.spi.ApplicationId;
+import org.apache.shindig.social.opensocial.spi.ApplicationUrl;
 import org.apache.shindig.social.opensocial.spi.ApplicationService;
 import org.apache.shindig.social.opensocial.spi.UserId;
 import org.apache.shindig.social.opensocial.spi.Context;
@@ -100,7 +101,24 @@ public class ApplicationHandler {
     }
     
   }
-
+  
+  @Operation(httpMethods = "PUT")
+  public Future<?> createApp(SocialRequestItem request)
+      throws ProtocolException {
+    Set<String> appUrls = request.getAppUrls();
+    HandlerPreconditions.requireNotEmpty(appUrls, "No appUrl is specified");
+    /*
+     * treat different conditions with one or several urls by lujia
+     */
+    if (appUrls.size() == 1) {
+    String appUrl = appUrls.iterator().next();
+    applicationService.createApplication(new ApplicationUrl(appUrl),
+        request.getToken());
+    }
+    return null;
+ }
+  
+  
   @Operation(httpMethods = "GET", path="/@supportedFields")
   public List<Object> supportedFields(RequestItem request) {
     // TODO: Would be nice if name in config matched name of service.

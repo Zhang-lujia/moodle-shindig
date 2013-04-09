@@ -238,7 +238,11 @@ public class ApplicationDb implements Application, DbObject {
   @Column(name = "thumbnail", length = 255, insertable = false, updatable = false)
   protected String thumbnailUrl;
 
-
+  //Add the timemodified field to this object for updating this column in db by lujia 
+  @Basic
+  @Column(name = "timemodified")
+  protected long timemodified;
+  		
   /**
    *
    */
@@ -424,8 +428,18 @@ public class ApplicationDb implements Application, DbObject {
     this.isOwner = isOwner;
   }
 
+  // for update the timemodified field
+  public void setTimeModified(long timemodified) {
+    this.timemodified = timemodified;
+  }
+  
+  public long getTimeModified() {
+    return this.timemodified;
+  }
+  
+  
   // Proxied fields
-
+	
 
 
   private <T extends ListField> T getListFieldWithType(String type, List<T> list) {

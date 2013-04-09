@@ -89,7 +89,7 @@ import javax.persistence.FetchType;
 public class SpaceDb implements Space, DbObject {
 
   // !!! no trailing '/'
-  public static final String MOODLE_URL = "http://iamac71.epfl.ch/moodle";
+  public static final String MOODLE_URL = "http://localhost";
 
   public static final String FINDBY_SPACEID = "q.space.findbyspaceid";
 

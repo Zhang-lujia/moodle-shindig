@@ -40,7 +40,7 @@ shindig code has Moodle-extensions to match OpenSocial APIs with Moodle database
    
 ### Copy the following three files 
 
-You can save all your specific configurations in these three "*_production" files. When you
+You can save all your specific configurations in these three files. When you
 update the code, they will not be touched. When you make production
 version of your shindig, these files are taken into account.
 
@@ -66,7 +66,7 @@ version of your shindig, these files are taken into account.
     shindig.canonical.json.db=sampledata/canonicaldb.json
     
     
-### Change host and port settings for your Shindig in web.xml_production
+### Change host and port settings for your Shindig in web.xml
     
     # You should specify which Shindig host will be run, e.g. , if you want
     # to run the Shindig host on your local machine, you should replace the
@@ -85,9 +85,9 @@ version of your shindig, these files are taken into account.
     public static final String MOODLE_URL = "http://iamac71.epfl.ch/moodle";
 
 
-### Change column name in person.db file. 
+### Change column name in person.db file. Only, if you do not use standard Moodle prefix for tables "mdl_"
     
-    @Table(name = "mdl_user") # Only, if you do not use standard Moodle prefix for tables "mdl_"
+    @Table(name = "mdl_user")
     
 
 Compilation and running with make
@@ -110,8 +110,7 @@ Clear all production temporal changes
 Prepare .war files for Production
 ---
 
-    $make production # takes your config files "*_production" and builds production.war
-                     # in the current directory based on them
+    $make production -> takes your config files "*_production" and builds production.war in the current directory based on them
     
 !!! Compiled .war file should be renamed into ROOT.war on the Tomcat server.
 

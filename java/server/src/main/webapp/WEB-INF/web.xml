@@ -55,7 +55,7 @@
    <context-param>
   	<param-name>system.properties</param-name>
      <param-value>
-    	shindig.host=iamac71.epfl.ch
+    	shindig.host=localhost
     	
     	aKey=/shindig/gadgets/proxy?container=default&amp;url=
     	shindig.port=8080

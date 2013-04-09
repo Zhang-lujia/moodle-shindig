@@ -24,6 +24,10 @@ import org.apache.shindig.auth.SecurityToken;
 import org.apache.shindig.common.util.ImmediateFuture;
 import org.apache.shindig.protocol.ProtocolException;
 import org.apache.shindig.protocol.RestfulCollection;
+import org.apache.shindig.gadgets.servlet.JsonRpcHandler;
+import org.apache.shindig.gadgets.servlet.RpcException;
+import org.apache.shindig.protocol.ProtocolException;
+import org.apache.shindig.protocol.RestfulCollection;
 import org.apache.shindig.social.opensocial.jpa.PersonDb;
 import org.apache.shindig.social.opensocial.jpa.ApplicationDb;
 import org.apache.shindig.social.opensocial.jpa.api.FilterCapability;
@@ -36,8 +40,14 @@ import org.apache.shindig.social.opensocial.spi.GroupId;
 import org.apache.shindig.social.opensocial.spi.ApplicationService;
 import org.apache.shindig.social.opensocial.spi.Context;
 import org.apache.shindig.social.opensocial.spi.ApplicationId;
+import org.apache.shindig.social.opensocial.spi.ApplicationUrl;
 import org.apache.shindig.social.opensocial.spi.UserId;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+import com.google.inject.Inject;
+
+import java.util.Calendar;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Future;
@@ -59,6 +69,7 @@ public class ApplicationServiceDb implements ApplicationService {
    * that its really thread safe).
    */
   private EntityManager entityManager;
+  private JsonRpcHandler jsonHandler;
 
   /**
    * Create the PersonServiceDb, injecting an entity manager that is configured with the social
@@ -67,8 +78,10 @@ public class ApplicationServiceDb implements ApplicationService {
    * @param entityManager the entity manager containing the social model.
    */
   @Inject
-  public ApplicationServiceDb(EntityManager entityManager) {
+  public ApplicationServiceDb(EntityManager entityManager,
+      JsonRpcHandler jsonHandler) {
     this.entityManager = entityManager;
+    this.jsonHandler = jsonHandler;
   }
 
   /**
@@ -184,7 +197,67 @@ public class ApplicationServiceDb implements ApplicationService {
     return ImmediateFuture.newInstance(application);
   }
 
+  public Future<Void> createApplication(ApplicationUrl applicationUrl,
+      SecurityToken token) throws ProtocolException {
+    String data = "{\"context\":{\"view\":\"canvas\",\"container\":\"default\"},\"gadgets\":[{\"url\":\""
+        + applicationUrl.getApplicationUrl() + "\", \"moduleId\":0}]}";
 
+    // use the rpc method to fetch the metadata of a widget
+    JSONObject resp;
+    try {
+    resp = jsonHandler.process(new JSONObject(data)).getJSONArray("gadgets").getJSONObject(0);
+
+    if (!entityManager.getTransaction().isActive()) {
+    entityManager.getTransaction().begin();
+    }
+	
+	// when inserting the record with native query there is no exception when the page in moodle reloads 
+    /*Query query = entityManager
+        .createNativeQuery("INSERT INTO mdl_widgetspace_gadgets (url, widgetspaceid, name, height, thumbnail, screenshot, description, timemodified) "
+            + " VALUES(?,?,?,?,?,?,?,?)");
+    query.setParameter(1, applicationUrl.getApplicationUrl());
+    query.setParameter(2, token.getOwnerId().replace("s_", ""));
+    query.setParameter(3, resp.get("title").toString());
+    int widget_height = Integer.parseInt(resp.get("height").toString());
+    widget_height = (widget_height == 0) ? 200 : widget_height;
+    query.setParameter(4, widget_height);
+    query.setParameter(5, resp.get("thumbnail").toString());
+    query.setParameter(6, resp.get("screenshot").toString());
+    query.setParameter(7, resp.get("description").toString());
+	query.setParameter(8, Calendar.getInstance().getTimeInMillis()/1000);
+    query.executeUpdate();
+
+    entityManager.getTransaction().commit();*/
+
+	//the question is that if using the jpa instead of native query then there arise an exception
+    
+    if (!entityManager.getTransaction().isActive()) {
+    entityManager.getTransaction().begin(); } 
+	ApplicationDb applicationDb = new ApplicationDb();
+    applicationDb.setParentId(token.getOwnerId().replace("s_", ""));
+    applicationDb.setAppUrl(applicationUrl.getApplicationUrl());
+    applicationDb.setDisplayName(resp.get("title").toString());
+     
+    int widget_height = Integer.parseInt(resp.get("height").toString());
+    widget_height = (widget_height == 0) ? 200 : widget_height;
+    applicationDb.setHeight(widget_height);
+    applicationDb.setThumbnailUrl(resp.get("thumbnail").toString());
+    applicationDb.setScreenshotUrl(resp.get("screenshot").toString());
+    applicationDb.setDescription(resp.get("description").toString());
+    
+    applicationDb.setTimeModified(Calendar.getInstance().getTimeInMillis() / 1000);
+    entityManager.persist(applicationDb);
+    entityManager.getTransaction().commit();
+
+    } catch (RpcException e) {
+    // TODO Auto-generated catch block
+    e.printStackTrace();
+    } catch (JSONException e) {
+    // TODO Auto-generated catch block
+    e.printStackTrace();
+    }
+    return ImmediateFuture.newInstance(null);
+  }
 
   /**
    * Add a filter clause specified by the collection options.

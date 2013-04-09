@@ -45,6 +45,7 @@ public class SocialRequestItem extends BaseRequestItem {
 
   private static final String CONTEXT_ID = "contextId";
   private static final String CONTEXT_TYPE = "contextType";
+  private static final String APP_URL = "appUrl";
 
   public SocialRequestItem(Map<String, String[]> parameters, 
       SecurityToken token, BeanConverter converter, BeanJsonConverter jsonConverter) {
@@ -90,6 +91,19 @@ public class SocialRequestItem extends BaseRequestItem {
   public String getSortBy() {
     String sortBy = super.getSortBy();
     return sortBy == null ? PersonService.TOP_FRIENDS_SORT : sortBy;
+  }
+  
+  /*
+   * Add this function to get appurl from end point by lujia
+   */
+  public Set<String> getAppUrls() {
+    List<String> urls = getListParameter(APP_URL);
+    
+    ImmutableSet.Builder<String> appUrls = ImmutableSet.builder();
+    for (String url : urls) {
+     appUrls.add(url);
+    }
+    return appUrls.build();
   }
 
 }
